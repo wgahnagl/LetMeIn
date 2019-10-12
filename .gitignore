@@ -5,3 +5,6 @@ app/__pycache__/*
 app/config.py
 *.swp
 *.swo
+.project
+venv
+.vscode

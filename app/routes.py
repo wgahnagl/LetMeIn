@@ -1,10 +1,11 @@
-from app import config
+# from app import config
 from flask import render_template
 from flask import request
 from app import app
+from app import GPIO_util
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import time
 import sys
 import atexit
@@ -13,28 +14,28 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from os import curdir,sep
 
-PENCIL_SHARPENER = 17
-RESPONSE_BUTTON = 19
-LED_A_LEVEL = 27
-LED_1_LEVEL = 22
+# PENCIL_SHARPENER = 17
+# RESPONSE_BUTTON = 19
+# LED_A_LEVEL = 27
+# LED_1_LEVEL = 22
 
-SITE_VERIFY_URL = config.RECAPTCHA_SITE_VERIFY_URL
-SECRET_KEY = config.RECAPTCHA_SECRET_KEY
+# SITE_VERIFY_URL = config.RECAPTCHA_SITE_VERIFY_URL
+# SECRET_KEY = config.RECAPTCHA_SECRET_KEY
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(PENCIL_SHARPENER, GPIO.OUT)
-GPIO.setup(RESPONSE_BUTTON, GPIO.IN,  pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(LED_A_LEVEL, GPIO.OUT)
-GPIO.setup(LED_1_LEVEL, GPIO.OUT)
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setwarnings(False)
+# GPIO.setup(PENCIL_SHARPENER, GPIO.OUT)
+# GPIO.setup(RESPONSE_BUTTON, GPIO.IN,  pull_up_down=GPIO.PUD_DOWN)
+# GPIO.setup(LED_A_LEVEL, GPIO.OUT)
+# GPIO.setup(LED_1_LEVEL, GPIO.OUT)
 
-GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-GPIO.output(LED_A_LEVEL, GPIO.LOW)
-GPIO.output(LED_1_LEVEL, GPIO.LOW)
+# GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
+# GPIO.output(LED_A_LEVEL, GPIO.LOW)
+# GPIO.output(LED_1_LEVEL, GPIO.LOW)
 
-#GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
-#GPIO.output(LED_A_LEVEL, GPIO.HIGH)
-#GPIO.output(LED_1_LEVEL, GPIO.HIGH)
+# #GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
+# #GPIO.output(LED_A_LEVEL, GPIO.HIGH)
+# #GPIO.output(LED_1_LEVEL, GPIO.HIGH)
 
 limiter = Limiter(
         app,
@@ -63,49 +64,51 @@ def activate():
     result = json.loads(data)
     success = result.get('success', None)
 
-    if success:
-        level = body['level']
-        startTime = time.time()
+    GPIO-util.success(success, body)
+    # if success:
+    #     level = body['level']
+    #     startTime = time.time()
 
-        print("Activating: " + level, file=sys.stderr)
+    #     print("Activating: " + level, file=sys.stderr)
 
-        GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
+    #     GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
 
-        if level == '1Level':
-            GPIO.output(LED_1_LEVEL, GPIO.HIGH)
-        elif level == 'aLevel':
-            GPIO.output(LED_A_LEVEL, GPIO.HIGH)
+    #     if level == '1Level':
+    #         GPIO.output(LED_1_LEVEL, GPIO.HIGH)
+    #     elif level == 'aLevel':
+    #         GPIO.output(LED_A_LEVEL, GPIO.HIGH)
 
-        while True:
+    #     while True:
 
-            elapsedTime = time.time() - startTime
-            timedOut = elapsedTime > 45
-            buttonPressed = GPIO.input(RESPONSE_BUTTON)
+    #         elapsedTime = time.time() - startTime
+    #         timedOut = elapsedTime > 45
+    #         buttonPressed = GPIO.input(RESPONSE_BUTTON)
 
-            if timedOut or buttonPressed:
+    #         if timedOut or buttonPressed:
 
-                GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-                GPIO.output(LED_1_LEVEL, GPIO.LOW)
-                GPIO.output(LED_A_LEVEL, GPIO.LOW)
+    #             GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
+    #             GPIO.output(LED_1_LEVEL, GPIO.LOW)
+    #             GPIO.output(LED_A_LEVEL, GPIO.LOW)
 
-                if timedOut:
-                    print("Button timed out", file=sys.stderr)
-                    return "timeout"
-                elif buttonPressed:
-                    print("Button pressed", file=sys.stderr)
-                    return "buttonpressed"
-                return ""
-    else:
-        GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-        GPIO.output(LED_1_LEVEL, GPIO.LOW)
-        GPIO.output(LED_A_LEVEL, GPIO.LOW)
-        print("Not Verified", file=sys.stderr)
-        return "not verified"
-
+    #             if timedOut:
+    #                 print("Button timed out", file=sys.stderr)
+    #                 return "timeout"
+    #             elif buttonPressed:
+    #                 print("Button pressed", file=sys.stderr)
+    #                 return "buttonpressed"
+    #             return ""
+    # else:
+    #     GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
+    #     GPIO.output(LED_1_LEVEL, GPIO.LOW)
+    #     GPIO.output(LED_A_LEVEL, GPIO.LOW)
+    #     print("Not Verified", file=sys.stderr)
+    #     return "not verified"
 def shutdown():
-    print("Goodbye", file=sys.stderr)
-    GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-    GPIO.output(LED_A_LEVEL, GPIO.LOW)
-    GPIO.output(LED_1_LEVEL, GPIO.LOW)
+    GPIO-util.shutdown()
+# def shutdown():
+#     print("Goodbye", file=sys.stderr)
+#     GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
+#     GPIO.output(LED_A_LEVEL, GPIO.LOW)
+#     GPIO.output(LED_1_LEVEL, GPIO.LOW)
 
 atexit.register(shutdown)
