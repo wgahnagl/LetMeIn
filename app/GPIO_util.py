@@ -1,5 +1,6 @@
 from app import config
 
+# if this isn't a pi, this import throws an exception 
 NOT_A_PI=False
 try:
     import RPi.GPIO as GPIO

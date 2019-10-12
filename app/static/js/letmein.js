@@ -5,20 +5,25 @@
           'callback' : letIn1});
         levelAID = grecaptcha.render('levelA',{'sitekey' : 'XXXXXXXXXX',
           'callback' : letInA});
-      }
+	  }
+	  
       function validate(event){
         event.preventDefault();
         grecaptcha.execute();
-      }
+	  }
+	  
       function showElem(id) {
         document.getElementById(id).style.display = "initial";
-      }
+	  }
+	  
       function hideElem(id) {
         document.getElementById(id).style.display = "none";
-      }
+	  }
+
       function hideButtons() {
         hideElem("buttonContainer");
-      }
+	  }
+	  
       function processName(inputName){
         var name = null;
         var processedName = null;
@@ -37,7 +42,8 @@
         else {
           return name;
         }
-      }
+	  }
+	  
       function letInA(token){
         var name = null;
         var checkedName = null;
@@ -60,7 +66,8 @@
         else if(checkedName != "" && checkedName != null){
           postSlack(name,'aLevel');
         }
-      }
+	  }
+	  
       function letIn1(token){
         var name = null;
         var checkedName = null;
@@ -83,7 +90,8 @@
         else if(checkedName != "" && checkedName != null){
           postSlack(name,'1Level');
         }
-      }
+	  }
+	  
       function letIn(level) {
         showElem("waitingStatus");
         hideButtons();
@@ -117,7 +125,8 @@
                 });
             }
         })
-      }
+	  }
+	  
       function postSlack(name, level){
         if(level ==="aLevel"){
           levelString = "Level A";
@@ -132,4 +141,4 @@
           {method: 'POST', body: JSON.stringify(params)})
           .then(() => letIn(level))
           .catch((error) => console.log(error));
-      }
+	  }
