@@ -1,11 +1,9 @@
-# from app import config
 from flask import render_template
 from flask import request
 from app import app
 from app import GPIO_util
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-# import RPi.GPIO as GPIO
 import time
 import sys
 import atexit
@@ -13,29 +11,10 @@ import json
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from os import curdir,sep
+from app import config
 
-# PENCIL_SHARPENER = 17
-# RESPONSE_BUTTON = 19
-# LED_A_LEVEL = 27
-# LED_1_LEVEL = 22
-
-# SITE_VERIFY_URL = config.RECAPTCHA_SITE_VERIFY_URL
-# SECRET_KEY = config.RECAPTCHA_SECRET_KEY
-
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setwarnings(False)
-# GPIO.setup(PENCIL_SHARPENER, GPIO.OUT)
-# GPIO.setup(RESPONSE_BUTTON, GPIO.IN,  pull_up_down=GPIO.PUD_DOWN)
-# GPIO.setup(LED_A_LEVEL, GPIO.OUT)
-# GPIO.setup(LED_1_LEVEL, GPIO.OUT)
-
-# GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-# GPIO.output(LED_A_LEVEL, GPIO.LOW)
-# GPIO.output(LED_1_LEVEL, GPIO.LOW)
-
-# #GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
-# #GPIO.output(LED_A_LEVEL, GPIO.HIGH)
-# #GPIO.output(LED_1_LEVEL, GPIO.HIGH)
+SITE_VERIFY_URL = config.VERIFY_URL
+SECRET_KEY = config.SECRET_KEY
 
 limiter = Limiter(
         app,
@@ -47,10 +26,17 @@ limiter = Limiter(
 def index():
     return render_template('index.html')
 
+@app.route('/siteverify', methods=['POST'])
+@limiter.limit("4 per hour")
+def siteverify():
+    body = request.json
+    print(body)
+
 @app.route('/activate', methods=['POST'])
 @limiter.limit("4 per hour")
 def activate():
     body = request.json
+    print(body)
     RECAPTCHA_RESPONSE = body['response']
 
     REMOTE_IP = request.remote_addr
@@ -59,56 +45,14 @@ def activate():
         'response':RECAPTCHA_RESPONSE,
     })
 
-    data = urlopen(SITE_VERIFY_URL, params.encode('utf-8')).read()
+    data = urlopen(VERIFY_URL, params.encode('utf-8')).read()
 
     result = json.loads(data)
     success = result.get('success', None)
 
     GPIO-util.success(success, body)
-    # if success:
-    #     level = body['level']
-    #     startTime = time.time()
 
-    #     print("Activating: " + level, file=sys.stderr)
-
-    #     GPIO.output(PENCIL_SHARPENER, GPIO.HIGH)
-
-    #     if level == '1Level':
-    #         GPIO.output(LED_1_LEVEL, GPIO.HIGH)
-    #     elif level == 'aLevel':
-    #         GPIO.output(LED_A_LEVEL, GPIO.HIGH)
-
-    #     while True:
-
-    #         elapsedTime = time.time() - startTime
-    #         timedOut = elapsedTime > 45
-    #         buttonPressed = GPIO.input(RESPONSE_BUTTON)
-
-    #         if timedOut or buttonPressed:
-
-    #             GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-    #             GPIO.output(LED_1_LEVEL, GPIO.LOW)
-    #             GPIO.output(LED_A_LEVEL, GPIO.LOW)
-
-    #             if timedOut:
-    #                 print("Button timed out", file=sys.stderr)
-    #                 return "timeout"
-    #             elif buttonPressed:
-    #                 print("Button pressed", file=sys.stderr)
-    #                 return "buttonpressed"
-    #             return ""
-    # else:
-    #     GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-    #     GPIO.output(LED_1_LEVEL, GPIO.LOW)
-    #     GPIO.output(LED_A_LEVEL, GPIO.LOW)
-    #     print("Not Verified", file=sys.stderr)
-    #     return "not verified"
 def shutdown():
     GPIO-util.shutdown()
-# def shutdown():
-#     print("Goodbye", file=sys.stderr)
-#     GPIO.output(PENCIL_SHARPENER, GPIO.LOW)
-#     GPIO.output(LED_A_LEVEL, GPIO.LOW)
-#     GPIO.output(LED_1_LEVEL, GPIO.LOW)
 
 atexit.register(shutdown)

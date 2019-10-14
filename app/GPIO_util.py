@@ -1,5 +1,3 @@
-from app import config
-
 # if this isn't a pi, this import throws an exception 
 NOT_A_PI=False
 try:
@@ -12,9 +10,6 @@ PENCIL_SHARPENER = 17
 RESPONSE_BUTTON = 19
 LED_A_LEVEL = 27
 LED_1_LEVEL = 22
-
-SITE_VERIFY_URL = config.RECAPTCHA_SITE_VERIFY_URL
-SECRET_KEY = config.RECAPTCHA_SECRET_KEY
 
 #that is to say, if it is in fact a pi
 if not NOT_A_PI:

@@ -5,7 +5,8 @@
     <title>CSH: Let me in!!!!</title>
         <link rel="stylesheet" type="text/css" href="../static/css/style.css">
         <script src="../static/js/letmein.js"></script>
-    <script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit'></script>
+         <script src="https://hcaptcha.com/1/api.js" async defer></script> 
+    <!-- <script src='https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit'></script> -->
   </head>
 
   <body>
@@ -36,8 +37,11 @@
       <img src="https://media.giphy.com/media/12gTXYTS09oST6/giphy.gif" />
     </div>
     <div id="buttonContainer">
+      <!-- <form action="" method="POST"> -->
       <button id="butt">Let me in: Level 1!!!</button>
       <button id="levelA">Let me in: Level A!!!</button>
+      <div class="h-captcha" data-sitekey="32b3ae5c-767b-4c13-a5a7-ecc225777b37"></div> 
+    <!-- </form> -->
     </div>
   </body>
 </html>
